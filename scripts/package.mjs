@@ -13,6 +13,7 @@ const files = [
   "manifest.json",
   "styles.css",
   "README.md",
+  "README.zh.md",
   "LICENSE",
   "docs",
 ];
