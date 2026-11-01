@@ -1,0 +1,9 @@
+{
+  "id": "social-formatter",
+  "name": "Social Formatter",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "把 Obsidian 笔记转换为微信公众号、今日头条的排版样式，支持自定义主题，一键复制富文本并粘贴到平台编辑器。",
+  "author": "spark-ai-boy",
+  "isDesktopOnly": false
+}

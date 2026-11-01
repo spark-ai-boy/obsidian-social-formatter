@@ -1,0 +1,6 @@
+node_modules/
+main.js
+*.zip
+.npm-cache/
+.obsidian-test-vault/
+.DS_Store
