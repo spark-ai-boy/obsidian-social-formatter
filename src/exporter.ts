@@ -3,6 +3,7 @@ import { copyRichHtml } from "./clipboard";
 import { prepareMarkdown } from "./markdown";
 import { normalizeRenderedContent } from "./normalize";
 import { themeCss, themeRootClasses } from "./themes";
+import { adoptShadowStyles } from "./shadow";
 import type {
   CopyResult,
   RenderOptions,
@@ -176,6 +177,15 @@ function collectComputedStyle(element: Element, root: boolean): string {
   }
   if (tag === "TABLE") declarations.push("width:100%");
   if (tag === "A" && !element.getAttribute("href")) declarations.push("text-decoration:none");
+  if (element.classList.contains("sf-code-bar")) {
+    declarations.push("line-height:0", "font-size:0");
+  }
+  if (element.classList.contains("sf-code-dot")) {
+    const width = computed.getPropertyValue("width");
+    const height = computed.getPropertyValue("height");
+    if (width) declarations.push(`width:${width}`);
+    if (height) declarations.push(`height:${height}`);
+  }
 
   return Array.from(new Set(declarations)).join(";");
 }
@@ -219,7 +229,7 @@ export function inlineStyledHtml(root: HTMLElement): string {
   }
 
   if (cloneRoot.tagName !== "SECTION") {
-    const section = document.createElement("section");
+    const section = createEl("section");
     for (const attribute of Array.from(cloneRoot.attributes)) {
       section.setAttribute(attribute.name, attribute.value);
     }
@@ -233,7 +243,6 @@ export function inlineStyledHtml(root: HTMLElement): string {
 export class SocialExporter {
   readonly host: HTMLElement;
   private readonly shadow: ShadowRoot;
-  private readonly styleElement: HTMLStyleElement;
   private readonly contentElement: HTMLElement;
   private readonly app: App;
   private readonly file: TFile;
@@ -252,12 +261,11 @@ export class SocialExporter {
     this.file = file;
     this.theme = theme;
     this.readMarkdown = readMarkdown;
-    this.host = document.createElement("div");
+    this.host = createEl("div");
     this.host.className = "sf-render-host";
     this.shadow = this.host.attachShadow({ mode: "open" });
-    this.styleElement = document.createElement("style");
-    this.contentElement = document.createElement("section");
-    this.shadow.append(this.styleElement, this.contentElement);
+    this.contentElement = createEl("section");
+    this.shadow.append(this.contentElement);
   }
 
   get element(): HTMLElement {
@@ -273,7 +281,7 @@ export class SocialExporter {
       ? await this.readMarkdown()
       : await this.app.vault.cachedRead(this.file);
     const prepared = await prepareMarkdown(this.app, this.file, markdown, options);
-    const renderHost = document.createElement("div");
+    const renderHost = createEl("div");
     const component = new Component();
     component.load();
     try {
@@ -302,7 +310,7 @@ export class SocialExporter {
       ) {
         normalized.warnings.push("正文已有一级标题，复制标题后可能出现重复");
       }
-      const title = document.createElement("h1");
+      const title = createEl("h1");
       title.className = "sf-title";
       title.textContent = prepared.title;
       renderHost.prepend(title);
@@ -314,7 +322,7 @@ export class SocialExporter {
       );
     }
 
-    this.styleElement.textContent = `${RESET_CSS}\n${themeCss(this.theme)}`;
+    adoptShadowStyles(this.shadow, `${RESET_CSS}\n${themeCss(this.theme)}`);
     this.contentElement.className = themeRootClasses(this.theme);
     // The normalized tree is already sanitized; move nodes instead of re-parsing HTML.
     this.contentElement.replaceChildren(...Array.from(renderHost.childNodes));

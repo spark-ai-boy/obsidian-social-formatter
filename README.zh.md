@@ -4,12 +4,15 @@
 
 把 Obsidian 笔记转换成微信公众号、今日头条的排版样式。预览满意后点一下复制，直接把富文本粘贴到平台编辑器里，不用重新排一遍。
 
+需要 Obsidian 1.13.0 或更高版本。
+
 ![排版预览](docs/preview.png)
 
 ## 功能
 
 - **两个平台的内置样式**：微信公众号（经典、清新绿）、今日头条（资讯、简约）。
 - **真正的复制粘贴**：生成只含内联样式的 HTML，不依赖 `<style>` 或 class，粘贴到平台编辑器后样式仍然存在。
+- **macOS 风格代码块**：代码块左侧顶部带红、黄、绿三个窗口圆点，复制出去的 HTML 也会保留。
 - **自定义样式**：在插件里调整颜色、字体、字号、行高、字距、段距、标题装饰、引用、代码主题、圆角等参数，也可以写自定义 CSS。
 - **保留 Obsidian 语义**：标题、列表、任务、引用、Callout、表格、代码块、图片、链接、标签、脚注等会转换成适合社交平台的 HTML。
 - **本地图片内嵌**：`![[image.png]]` 和 `![](assets/image.png)` 会读取为 Base64 一起复制，避免预览时图片丢失。
@@ -37,7 +40,7 @@
 npm install
 npm run build   # 生成 main.js
 npm test        # 运行单元测试
-npm run package # 生成 dist/obsidian-social-formatter-0.1.1.zip
+npm run package # 生成 dist/obsidian-social-formatter-0.1.2.zip
 ```
 
 开发时可以使用：
@@ -74,6 +77,10 @@ npm run dev
 
 在预览右上角点击星标，可以把当前样式设为默认。下次打开预览、或使用直接复制命令时优先使用它。
 
+### 预览头部信息
+
+预览头部会读取可选的 frontmatter 字段：`author`、`account`、`location`、`published`；缺失时使用插件信息和当前日期。顶部平台信息与底部按钮栏只用于预览，不会写进复制出去的正文 HTML。
+
 ## 内置样式
 
 ### 公众号 · 经典
@@ -107,7 +114,7 @@ npm run dev
 
 ![自定义样式编辑器](docs/theme-editor.png)
 
-设置 → **Social Formatter** → **样式库**：
+设置 → **Social Formatter**，在「内置样式」或「自定义样式」区域：
 
 - 内置样式不可直接修改，点击 **复制并编辑** 会创建一份独立的自定义样式。
 - **新建公众号样式** / **新建头条样式** 从平台默认样式开始。
@@ -214,7 +221,7 @@ npm run dev
 3. 用 Obsidian 的 `MarkdownRenderer` 渲染，再把结果整理成语义更干净的 HTML。
 4. 在 Shadow DOM 中套用主题 CSS，实时预览。
 5. 复制时遍历预览中的元素，读取计算样式，逐元素写成内联 `style`，并去掉 class、data 属性、脚本等无关内容。
-6. 通过 `ClipboardItem` 写入 `text/html` + `text/plain`；失败时使用选区复制或纯文本回退。
+6. 通过 `ClipboardItem` 写入 `text/html` + `text/plain`；失败时回退为纯文本。
 
 ## 开发
 
@@ -248,7 +255,7 @@ npm run check
 仓库内置两条 GitHub Actions 工作流：
 
 - **CI**（`.github/workflows/ci.yml`）：push 到 `main` / `master`、Pull Request 或手动触发时，安装依赖、校验版本号、运行类型检查与单元测试、构建插件包，并上传构建产物。
-- **Release**（`.github/workflows/release.yml`）：推送与 `manifest.version` 完全一致的版本标签（例如 `0.1.1`）时，再次运行完整检查，生成构建证明，然后把 `main.js`、`manifest.json`、`styles.css` 附加到 GitHub Release。安装包 zip 只保留在 CI Artifacts 和本地构建中，不附加到 Release，避免目录提示不受支持的文件。
+- **Release**（`.github/workflows/release.yml`）：推送与 `manifest.version` 完全一致的版本标签（例如 `0.1.2`）时，再次运行完整检查，生成构建证明，然后把 `main.js`、`manifest.json`、`styles.css` 附加到 GitHub Release。安装包 zip 只保留在 CI Artifacts 和本地构建中，不附加到 Release，避免目录提示不受支持的文件。
 
 ### 发布新版本
 
@@ -258,20 +265,20 @@ npm run check
 - `manifest.json` 的 `version`
 - `versions.json` 中对应版本号，以及 `manifest.minAppVersion`
 
-然后本地校验（这里的 `0.1.1` 要换成实际的新版本号）：
+然后本地校验（这里的 `0.1.2` 要换成实际的新版本号）：
 
 ```bash
-node scripts/verify-version.mjs 0.1.1
+node scripts/verify-version.mjs 0.1.2
 ```
 
 提交并推送后创建标签：
 
 ```bash
-git tag -a 0.1.1 -m "0.1.1"
-git push origin 0.1.1
+git tag -a 0.1.2 -m "0.1.2"
+git push origin 0.1.2
 ```
 
-**注意：** Obsidian 按 `manifest.version` 精确查找 GitHub Release 的 tag，因此不要使用 `v0.1.1` 这类带前缀的标签；tag 必须写成 `0.1.1`。
+**注意：** Obsidian 按 `manifest.version` 精确查找 GitHub Release 的 tag，因此不要使用 `v0.1.2` 这类带前缀的标签；tag 必须写成 `0.1.2`。
 
 如果还没有配置远程仓库：
 

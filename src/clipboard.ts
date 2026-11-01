@@ -1,34 +1,5 @@
 import type { CopyResult } from "./types";
 
-function fallbackWithExecCommand(html: string): boolean {
-  const container = document.createElement("div");
-  container.setAttribute("contenteditable", "true");
-  container.style.cssText =
-    "position:fixed;left:-99999px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;";
-  const parsed = new DOMParser().parseFromString(html, "text/html");
-  container.replaceChildren(...Array.from(parsed.body.childNodes));
-  document.body.appendChild(container);
-
-  const selection = window.getSelection();
-  const range = document.createRange();
-  range.selectNodeContents(container);
-  const previous = selection?.rangeCount ? selection.getRangeAt(0) : null;
-  selection?.removeAllRanges();
-  selection?.addRange(range);
-
-  let copied = false;
-  try {
-    copied = document.execCommand("copy");
-  } catch {
-    copied = false;
-  }
-
-  selection?.removeAllRanges();
-  if (previous) selection?.addRange(previous);
-  container.remove();
-  return copied;
-}
-
 export async function copyRichHtml(html: string, text: string): Promise<CopyResult> {
   if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
     try {
@@ -40,12 +11,8 @@ export async function copyRichHtml(html: string, text: string): Promise<CopyResu
       ]);
       return { mode: "rich", htmlLength: html.length };
     } catch {
-      // Fall through to the selection based fallback.
+      // Fall back to plain text when the platform rejects rich clipboard writes.
     }
-  }
-
-  if (fallbackWithExecCommand(html)) {
-    return { mode: "rich", htmlLength: html.length };
   }
 
   if (navigator.clipboard?.writeText) {

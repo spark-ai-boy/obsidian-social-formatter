@@ -1,6 +1,6 @@
 {
   "name": "obsidian-social-formatter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Format Obsidian notes for WeChat Official Accounts, Toutiao, and custom social themes, then copy rich HTML ready to paste.",
   "main": "main.js",
   "type": "commonjs",

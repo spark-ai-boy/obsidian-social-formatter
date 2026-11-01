@@ -48,6 +48,9 @@ describe("themes", () => {
     const css = themeCss(theme);
     expect(css).toContain("--sf-accent:");
     expect(css).toContain(".sf-content p");
+    expect(css).toContain(".sf-code-window");
+    expect(css).toContain(".sf-code-dot");
+    expect(css).toContain("#ff5f57");
     expect(themeRootClasses(theme)).toContain("sf-content");
     expect(themeRootClasses(theme)).toContain("sf-quote-bar");
   });

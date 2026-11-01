@@ -1,4 +1,4 @@
-import { App, Modal, Notice, TFile } from "obsidian";
+import { App, Modal, Notice, TFile, setIcon } from "obsidian";
 import type SocialFormatterPlugin from "../main";
 import { SocialExporter } from "../exporter";
 import { getAllThemes, getDefaultThemeForPlatform } from "../themes";
@@ -30,6 +30,16 @@ export class PreviewModal extends Modal {
   private warningBox!: HTMLElement;
   private statusEl!: HTMLElement;
   private themeLabel!: HTMLElement;
+  private chromeEl!: HTMLElement;
+  private originalBadge!: HTMLElement;
+  private authorEl!: HTMLElement;
+  private accountEl!: HTMLElement;
+  private timeEl!: HTMLElement;
+  private locationEl!: HTMLElement;
+  private avatarEl!: HTMLElement;
+  private accountNameEl!: HTMLElement;
+  private accountDescEl!: HTMLElement;
+  private actionsEl!: HTMLElement;
   private mobile = false;
 
   constructor(app: App, plugin: SocialFormatterPlugin, file: TFile, initialThemeId?: string) {
@@ -140,7 +150,8 @@ export class PreviewModal extends Modal {
     const scroll = el("div", "sf-preview-scroll");
     this.previewPaper = el("div", "sf-preview-paper");
     this.previewMount = el("div", "sf-preview-mount");
-    this.previewPaper.appendChild(this.previewMount);
+    this.buildPlatformChrome();
+    this.previewPaper.appendChild(this.chromeEl);
     scroll.appendChild(this.previewPaper);
     previewArea.appendChild(scroll);
     this.contentEl.appendChild(previewArea);
@@ -214,6 +225,112 @@ export class PreviewModal extends Modal {
     this.updateDefaultButton();
     this.updateThemeLabel();
     void this.render();
+  }
+
+  private buildPlatformChrome(): void {
+    this.chromeEl = el("div", "sf-platform-chrome is-wechat");
+
+    const header = el("div", "sf-platform-header");
+    const badgeRow = el("div", "sf-platform-badge-row");
+    this.originalBadge = el("span", "sf-original-badge", "原创");
+    badgeRow.append(this.originalBadge, el("span", "sf-preview-badge", "平台预览"));
+    const byline = el("div", "sf-platform-byline");
+    this.authorEl = el("span", "sf-platform-author");
+    this.accountEl = el("span", "sf-platform-account");
+    this.timeEl = el("span", "sf-platform-time");
+    this.locationEl = el("span", "sf-platform-location");
+    byline.append(
+      this.authorEl,
+      el("span", "sf-platform-dot", "·"),
+      this.accountEl,
+      el("span", "sf-platform-dot", "·"),
+      this.timeEl,
+      el("span", "sf-platform-dot", "·"),
+      this.locationEl,
+    );
+    header.append(badgeRow, byline);
+
+    const footer = el("div", "sf-platform-footer");
+    const accountCard = el("div", "sf-account-card");
+    this.avatarEl = el("span", "sf-account-avatar");
+    const accountCopy = el("div", "sf-account-copy");
+    this.accountNameEl = el("strong", "sf-account-name");
+    this.accountDescEl = el("span", "sf-account-desc");
+    accountCopy.append(this.accountNameEl, this.accountDescEl);
+    accountCard.append(
+      this.avatarEl,
+      accountCopy,
+      el("span", "sf-follow-button", "关注"),
+    );
+    this.actionsEl = el("div", "sf-platform-actions");
+    footer.append(accountCard, this.actionsEl);
+
+    this.chromeEl.append(header, this.previewMount, footer);
+  }
+
+  private updatePlatformChrome(): void {
+    if (!this.chromeEl) return;
+    const isToutiao = this.platform === "toutiao";
+    this.chromeEl.classList.toggle("is-wechat", !isToutiao);
+    this.chromeEl.classList.toggle("is-toutiao", isToutiao);
+    const meta = this.previewMeta();
+    this.authorEl.textContent = meta.author;
+    this.accountEl.textContent = meta.account;
+    this.timeEl.textContent = meta.time;
+    this.locationEl.textContent = meta.location;
+    this.avatarEl.textContent = meta.account.trim().slice(0, 1).toUpperCase() || "S";
+    this.accountNameEl.textContent = meta.account;
+    this.accountDescEl.textContent = isToutiao
+      ? "分享热点与深度内容"
+      : "分享笔记与效率工具";
+
+    this.actionsEl.empty();
+    const actions: Array<[string, string]> = isToutiao
+      ? [
+          ["heart", "点赞"],
+          ["message-square", "评论"],
+          ["share-2", "分享"],
+          ["bookmark", "收藏"],
+        ]
+      : [
+          ["heart", "点赞"],
+          ["share-2", "转发"],
+          ["thumbs-up", "推荐"],
+          ["message-square", "评论"],
+        ];
+    for (const [icon, label] of actions) {
+      const action = el("span", "sf-platform-action");
+      const iconEl = el("span", "sf-platform-action-icon");
+      setIcon(iconEl, icon);
+      action.append(iconEl, el("span", undefined, label));
+      this.actionsEl.appendChild(action);
+    }
+  }
+
+  private previewMeta(): {
+    author: string;
+    account: string;
+    time: string;
+    location: string;
+  } {
+    const frontmatter = this.app.metadataCache.getFileCache(this.file)?.frontmatter as
+      | Record<string, unknown>
+      | undefined;
+    const text = (value: unknown): string =>
+      typeof value === "string" && value.trim() ? value.trim() : "";
+    const author = text(frontmatter?.author) || this.plugin.manifest.author;
+    const account = text(frontmatter?.account) || this.plugin.manifest.name;
+    const location = text(frontmatter?.location) || "上海";
+    const published =
+      text(frontmatter?.published) || text(frontmatter?.date);
+    const time =
+      published ||
+      new Intl.DateTimeFormat("zh-CN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(new Date());
+    return { author, account, time, location };
   }
 
   private updatePlatformButtons(): void {
@@ -306,10 +423,10 @@ export class PreviewModal extends Modal {
     const token = ++this.renderToken;
     const theme = this.currentTheme();
     this.themeSelect.value = theme.id;
-    this.previewPaper.style.setProperty(
-      "--sf-paper-width",
-      `${Math.min(940, Math.max(420, theme.tokens.contentWidth + 80))}px`,
-    );
+    this.previewPaper.setCssProps({
+      "--sf-paper-width": `${Math.min(940, Math.max(420, theme.tokens.contentWidth + 80))}px`,
+    });
+    this.updatePlatformChrome();
     this.updateThemeLabel();
     this.copyButton.disabled = true;
     this.copyHtmlButton.disabled = true;

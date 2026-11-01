@@ -74,6 +74,11 @@ describe("normalizeRenderedContent", () => {
     const pre = container.querySelector("pre.sf-code-block");
     expect(pre?.querySelector("code")?.textContent).toBe("const x = 1;");
     expect(pre?.querySelector("span")).toBeNull();
+    expect(container.querySelector(".sf-code-window")).not.toBeNull();
+    expect(container.querySelectorAll(".sf-code-dot")).toHaveLength(3);
+    expect(container.querySelector(".sf-code-dot-red")).not.toBeNull();
+    expect(container.querySelector(".sf-code-dot-yellow")).not.toBeNull();
+    expect(container.querySelector(".sf-code-dot-green")).not.toBeNull();
   });
 
   it("wraps tables and removes inline styles", () => {

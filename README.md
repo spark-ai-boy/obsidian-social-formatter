@@ -4,12 +4,15 @@
 
 Social Formatter is an Obsidian plugin that converts Markdown notes into WeChat Official Account and Toutiao article styles. Pick a built-in theme or design your own, preview the result, then copy rich HTML straight into the platform editor.
 
+Requires Obsidian 1.13.0 or newer.
+
 ![Social Formatter preview](docs/preview.png)
 
 ## Features
 
 - **Two platforms, four built-in themes**: WeChat Official Accounts (Classic, Fresh Green) and Toutiao (News, Minimal).
 - **Paste-ready rich text**: Copy produces inline-styled HTML with no classes or `<style>` tags, so formatting survives the platform editor.
+- **macOS-style code blocks**: Code blocks include a red/yellow/green window bar that is also preserved in the copied HTML.
 - **Custom themes**: Adjust colors, fonts, type scale, line height, letter spacing, paragraph spacing, headings, quotes, code blocks, radii, and content width. Add your own CSS when needed.
 - **Obsidian-aware conversion**: Headings, lists, tasks, quotes, callouts, tables, code blocks, links, tags, footnotes, and local images are converted into portable HTML.
 - **Local images**: Vault images are embedded as Base64 so previews and copied content do not depend on local file paths.
@@ -64,6 +67,10 @@ If no Markdown note is active, the plugin opens a note picker.
 
 Click the star in the preview toolbar to make the current theme the default. The selected theme is used the next time you open the preview.
 
+### Preview header
+
+The platform header reads optional frontmatter fields: `author`, `account`, `location`, and `published`. Missing values fall back to the plugin metadata and the current date. The header and bottom action bar are preview-only; they are never included in the copied article HTML.
+
 ## Built-in themes
 
 ### WeChat · Classic
@@ -95,7 +102,7 @@ Light code blocks, underlined headings, and card quotes for opinion pieces and l
 
 ## Custom themes
 
-Open **Settings → Social Formatter → Theme library**:
+Open **Settings → Social Formatter**, then use the built-in theme rows or the new-theme row:
 
 - Built-in themes are read-only. Choose **Duplicate and edit** to create an editable copy.
 - Create a new WeChat or Toutiao theme from the platform defaults.
@@ -183,7 +190,7 @@ Limitations:
 3. Render Markdown with Obsidian's `MarkdownRenderer`, then normalize the result into portable HTML.
 4. Apply the selected theme CSS inside a Shadow DOM for live preview.
 5. On copy, walk the preview, read computed styles, and write inline styles to every element.
-6. Write `text/html` and `text/plain` to the clipboard, with fallbacks for browsers that restrict rich clipboard access.
+6. Write `text/html` and `text/plain` to the clipboard, falling back to plain text when rich clipboard writes are restricted.
 
 ## Development
 
@@ -220,9 +227,9 @@ Node 22 is the supported development version (`.nvmrc`).
 The release tag must exactly match `manifest.version`; do not prefix it with `v`.
 
 ```bash
-node scripts/verify-version.mjs 0.1.1
-git tag -a 0.1.1 -m "0.1.1"
-git push origin 0.1.1
+node scripts/verify-version.mjs 0.1.2
+git tag -a 0.1.2 -m "0.1.2"
+git push origin 0.1.2
 ```
 
 ## Submit to the Obsidian community directory

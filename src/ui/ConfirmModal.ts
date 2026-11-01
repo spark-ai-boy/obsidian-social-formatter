@@ -33,10 +33,12 @@ export class ConfirmModal extends Modal {
     cancel.addEventListener("click", () => this.close());
     const confirm = el("button", "sf-button sf-button-danger", this.confirmLabel);
     confirm.type = "button";
-    confirm.addEventListener("click", async () => {
+    confirm.addEventListener("click", () => {
       confirm.disabled = true;
-      await this.onConfirm();
-      this.close();
+      void (async () => {
+        await this.onConfirm();
+        this.close();
+      })();
     });
     actions.append(cancel, confirm);
     this.contentEl.appendChild(actions);

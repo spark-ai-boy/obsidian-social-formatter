@@ -335,10 +335,198 @@
   max-width: 390px;
 }
 
+.sf-preview-paper.is-mobile .sf-platform-header {
+  padding: 14px 14px 10px;
+}
+
+.sf-preview-paper.is-mobile .sf-platform-footer {
+  padding: 14px;
+}
+
+.sf-preview-paper.is-mobile .sf-platform-byline {
+  font-size: 10px;
+}
+
 .sf-preview-mount,
 .sf-render-host {
   display: block;
   width: 100%;
+  box-sizing: border-box;
+}
+
+.sf-preview-paper.is-mobile .sf-preview-mount {
+  padding: 16px 14px;
+}
+
+/* Mock platform chrome — preview only, never copied to the article HTML. */
+.sf-platform-chrome {
+  --sf-preview-accent: #07c160;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.sf-platform-chrome.is-toutiao {
+  --sf-preview-accent: #f04142;
+}
+
+.sf-platform-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sf-platform-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-original-badge {
+  padding: 1px 6px;
+  border: 1px solid #f0d9a8;
+  border-radius: 4px;
+  background: #fff7e6;
+  color: #8b6b20;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.is-toutiao .sf-original-badge {
+  border-color: #ffc9c9;
+  background: #fff1f0;
+  color: #c92a2a;
+}
+
+.sf-preview-badge {
+  margin-left: auto;
+  padding: 2px 8px;
+  border: 1px solid #eeeeee;
+  border-radius: 999px;
+  background: #f7f7f7;
+  color: #999999;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.sf-platform-byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: #999999;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.sf-platform-author {
+  color: #333333;
+  font-weight: 600;
+}
+
+.sf-platform-account {
+  color: var(--sf-preview-accent);
+}
+
+.sf-platform-dot {
+  color: #cccccc;
+}
+
+.sf-platform-footer {
+  padding: 16px 18px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.sf-account-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sf-account-avatar {
+  display: inline-flex;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--sf-preview-accent);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.sf-account-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sf-account-name {
+  overflow: hidden;
+  color: #222222;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sf-account-desc {
+  overflow: hidden;
+  color: #999999;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sf-follow-button {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 4px 12px;
+  border: 1px solid var(--sf-preview-accent);
+  border-radius: 999px;
+  color: var(--sf-preview-accent);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.sf-platform-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #eeeeee;
+}
+
+.sf-platform-action {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #666666;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.sf-platform-action:first-child {
+  color: var(--sf-preview-accent);
+}
+
+.sf-platform-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sf-platform-action-icon svg {
+  width: 16px;
+  height: 16px;
 }
 
 .sf-offscreen-render-host {
@@ -460,17 +648,6 @@
   flex-wrap: wrap;
   gap: 8px;
   margin: 14px 0 22px;
-}
-
-.sf-about {
-  max-width: 760px;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.65;
-}
-
-.sf-about-links a {
-  color: var(--text-accent);
 }
 
 /* -------------------- Theme editor -------------------- */

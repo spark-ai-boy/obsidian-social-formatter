@@ -378,14 +378,43 @@ function quoteStyleCss(tokens: ThemeTokens): string {
 function codeStyleCss(tokens: ThemeTokens): string {
   const dark = tokens.codeStyle === "dark";
   return `
-.sf-content pre.sf-code-block {
+.sf-content .sf-code-window {
   margin: 20px 0;
-  padding: 16px;
   border-radius: var(--sf-radius);
   background: ${dark ? "#282c34" : "#fafafa"};
-  color: ${dark ? "#abb2bf" : "#24292f"};
   border: ${dark ? "0" : "1px solid var(--sf-border)"};
   box-shadow: ${dark ? "0 2px 10px rgba(0, 0, 0, 0.28)" : "none"};
+  overflow: hidden;
+}
+.sf-content .sf-code-bar {
+  padding: 9px 14px;
+  background: ${dark ? "#21252b" : "#eef1f4"};
+  border-bottom: 1px solid ${dark ? "rgba(255, 255, 255, 0.08)" : "var(--sf-border)"};
+  border-radius: var(--sf-radius) var(--sf-radius) 0 0;
+  font-size: 0;
+  line-height: 0;
+  text-align: left;
+}
+.sf-content .sf-code-dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 6px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #ff5f57;
+  vertical-align: middle;
+}
+.sf-content .sf-code-dot-yellow { background-color: #febc2e; }
+.sf-content .sf-code-dot-green { background-color: #28c840; }
+.sf-content .sf-code-window pre.sf-code-block {
+  margin: 0;
+  padding: 16px;
+  border-radius: 0 0 var(--sf-radius) var(--sf-radius);
+  background: ${dark ? "#282c34" : "#fafafa"};
+  color: ${dark ? "#abb2bf" : "#24292f"};
+  border: 0;
+  box-shadow: none;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-all;
@@ -395,7 +424,7 @@ function codeStyleCss(tokens: ThemeTokens): string {
   text-align: left;
   -webkit-overflow-scrolling: touch;
 }
-.sf-content pre.sf-code-block code {
+.sf-content .sf-code-window pre.sf-code-block code {
   display: block;
   padding: 0;
   margin: 0;

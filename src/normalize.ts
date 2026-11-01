@@ -49,7 +49,7 @@ function make<K extends keyof HTMLElementTagNameMap>(
   className?: string,
   text?: string,
 ): HTMLElementTagNameMap[K] {
-  const element = document.createElement(tag);
+  const element = createEl(tag);
   if (className) element.className = className;
   if (text !== undefined) element.textContent = text;
   return element;
@@ -160,17 +160,29 @@ function handleCallouts(container: HTMLElement): void {
   }
 }
 
+function macWindowBar(): HTMLElement {
+  const bar = make("div", "sf-code-bar");
+  for (const color of ["red", "yellow", "green"]) {
+    const dot = make("span", `sf-code-dot sf-code-dot-${color}`);
+    dot.setAttribute("aria-hidden", "true");
+    bar.appendChild(dot);
+  }
+  return bar;
+}
+
 function handleCodeBlocks(container: HTMLElement): void {
   for (const pre of Array.from(container.querySelectorAll("pre"))) {
     if (!container.contains(pre)) continue;
-    if (pre.classList.contains("sf-code-block")) continue;
+    if (pre.parentElement?.classList.contains("sf-code-window")) continue;
     const code = pre.querySelector("code");
     const text = (code ?? pre).textContent ?? "";
     const nextPre = make("pre", "sf-code-block");
     const nextCode = make("code");
     nextCode.textContent = text.replace(/\n$/, "");
     nextPre.appendChild(nextCode);
-    pre.replaceWith(nextPre);
+    const window = make("div", "sf-code-window");
+    window.append(macWindowBar(), nextPre);
+    pre.replaceWith(window);
   }
 }
 

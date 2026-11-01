@@ -10,6 +10,7 @@ import {
 import type { SocialTheme, ThemeTokens } from "../types";
 import { cloneTheme, cssNumber } from "../utils";
 import { ConfirmModal } from "./ConfirmModal";
+import { adoptShadowStyles } from "../shadow";
 import { el, labeledField, sectionTitle } from "./dom";
 
 const PREVIEW_RESET = `
@@ -115,7 +116,7 @@ export class ThemeEditorModal extends Modal {
   }
 
   onClose(): void {
-    if (this.previewFrame !== undefined) cancelAnimationFrame(this.previewFrame);
+    if (this.previewFrame !== undefined) window.cancelAnimationFrame(this.previewFrame);
     this.contentEl.empty();
   }
 
@@ -281,7 +282,7 @@ export class ThemeEditorModal extends Modal {
         text.classList.add("is-invalid");
         return;
       }
-      this.setToken(key, value.trim() as never);
+      this.setToken(key, value.trim());
       text.value = value.trim();
       if (/^#[0-9a-f]{6}$/i.test(value.trim())) color.value = value.trim();
       text.classList.remove("is-invalid");
@@ -319,12 +320,12 @@ export class ThemeEditorModal extends Modal {
       if (input.value === "") return;
       const value = Number(input.value);
       if (Number.isFinite(value)) {
-        this.setToken(key, cssNumber(value, min, min, max) as never);
+        this.setToken(key, cssNumber(value, min, min, max));
       }
     });
     input.addEventListener("blur", () => {
       const value = cssNumber(Number(input.value), min, min, max);
-      this.setToken(key, value as never);
+      this.setToken(key, value);
       input.value = String(value);
     });
     wrapper.appendChild(input);
@@ -345,19 +346,19 @@ export class ThemeEditorModal extends Modal {
     select.value = String(this.theme.tokens[key]);
     select.addEventListener("change", () => {
       const numeric = key === "headingWeight" || key === "strongWeight";
-      this.setToken(key, (numeric ? Number(select.value) : select.value) as never);
+      this.setToken(key, numeric ? Number(select.value) : select.value);
     });
     labeledField(parent, label, select);
   }
 
-  private setToken(key: ThemeKey, value: ThemeTokens[ThemeKey]): void {
+  private setToken(key: ThemeKey, value: ThemeTokens[ThemeKey] | string | number): void {
     (this.theme.tokens as unknown as Record<string, unknown>)[key] = value;
     this.schedulePreview();
   }
 
   private schedulePreview(): void {
-    if (this.previewFrame !== undefined) cancelAnimationFrame(this.previewFrame);
-    this.previewFrame = requestAnimationFrame(() => {
+    if (this.previewFrame !== undefined) window.cancelAnimationFrame(this.previewFrame);
+    this.previewFrame = window.requestAnimationFrame(() => {
       this.previewFrame = undefined;
       this.renderPreview();
     });
@@ -367,13 +368,12 @@ export class ThemeEditorModal extends Modal {
     if (!this.previewHost.isConnected) return;
     const shadow = this.previewHost.shadowRoot ?? this.previewHost.attachShadow({ mode: "open" });
     shadow.replaceChildren();
-    const style = document.createElement("style");
-    style.textContent = `${PREVIEW_RESET}\n${themeCss(this.theme)}`;
-    const content = document.createElement("section");
+    adoptShadowStyles(shadow, `${PREVIEW_RESET}\n${themeCss(this.theme)}`);
+    const content = createEl("section");
     content.className = themeRootClasses(this.theme);
     const parsed = new DOMParser().parseFromString(SAMPLE_HTML, "text/html");
     content.replaceChildren(...Array.from(parsed.body.childNodes));
-    shadow.append(style, content);
+    shadow.append(content);
   }
 
   private resetToPlatformDefaults(): void {

@@ -1,5 +1,4 @@
 import { App, TFile, normalizePath } from "obsidian";
-import type { RenderOptions } from "./types";
 import {
   arrayBufferToBase64,
   formatBytes,

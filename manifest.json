@@ -1,8 +1,8 @@
 {
   "id": "social-formatter",
   "name": "Social Formatter",
-  "version": "0.1.1",
-  "minAppVersion": "1.5.0",
+  "version": "0.1.2",
+  "minAppVersion": "1.13.0",
   "description": "Format Markdown notes for WeChat Official Accounts and Toutiao with built-in or custom themes, then copy rich HTML ready to paste.",
   "author": "spark-ai-boy",
   "isDesktopOnly": false
