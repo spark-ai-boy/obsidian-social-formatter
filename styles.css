@@ -341,6 +341,15 @@
   width: 100%;
 }
 
+.sf-offscreen-render-host {
+  position: fixed;
+  left: -100000px;
+  top: 0;
+  width: 720px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .sf-loading {
   position: absolute;
   inset: 0;

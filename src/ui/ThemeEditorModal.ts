@@ -371,7 +371,8 @@ export class ThemeEditorModal extends Modal {
     style.textContent = `${PREVIEW_RESET}\n${themeCss(this.theme)}`;
     const content = document.createElement("section");
     content.className = themeRootClasses(this.theme);
-    content.innerHTML = SAMPLE_HTML;
+    const parsed = new DOMParser().parseFromString(SAMPLE_HTML, "text/html");
+    content.replaceChildren(...Array.from(parsed.body.childNodes));
     shadow.append(style, content);
   }
 

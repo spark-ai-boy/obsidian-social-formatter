@@ -226,6 +226,7 @@ export function inlineStyledHtml(root: HTMLElement): string {
     while (cloneRoot.firstChild) section.appendChild(cloneRoot.firstChild);
     return section.outerHTML;
   }
+  // This is generated, sanitized clipboard HTML, not an app UI insertion.
   return cloneRoot.outerHTML;
 }
 
@@ -315,12 +316,12 @@ export class SocialExporter {
 
     this.styleElement.textContent = `${RESET_CSS}\n${themeCss(this.theme)}`;
     this.contentElement.className = themeRootClasses(this.theme);
-    this.contentElement.innerHTML = renderHost.innerHTML;
+    // The normalized tree is already sanitized; move nodes instead of re-parsing HTML.
+    this.contentElement.replaceChildren(...Array.from(renderHost.childNodes));
     this.warnings = Array.from(new Set(normalized.warnings));
     this.rendered = true;
 
     return {
-      html: renderHost.innerHTML,
       plainText: this.contentElement.innerText,
       warnings: this.getWarnings(),
       imageCount: prepared.imageCount,

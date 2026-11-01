@@ -13,7 +13,7 @@
 - **本地图片内嵌**：`![[image.png]]` 和 `![](assets/image.png)` 会读取为 Base64 一起复制，避免预览时图片丢失。
 - **两种工作流**：打开预览仔细挑选样式，或用命令直接按默认样式复制。
 - **实时预览**：支持手机宽度预览；预览中看到的就是复制出去的内容。
-- **本地处理**：转换、图片内嵌和复制都在本地完成，不上传笔记内容。
+- **本地处理**：转换、图片内嵌和复制都在本地完成，不上传笔记内容。插件本身不发起网络请求；如果笔记引用远程图片，预览时会由 Obsidian 直接加载该图片 URL。
 
 ## 安装
 
@@ -239,7 +239,7 @@ npm run check
 仓库内置两条 GitHub Actions 工作流：
 
 - **CI**（`.github/workflows/ci.yml`）：push 到 `main` / `master`、Pull Request 或手动触发时，安装依赖、校验版本号、运行类型检查与单元测试、构建插件包，并上传构建产物。
-- **Release**（`.github/workflows/release.yml`）：推送 `v*` 标签时，再次运行完整检查，然后把 `main.js`、`manifest.json`、`styles.css` 和安装包 zip 附加到 GitHub Release。
+- **Release**（`.github/workflows/release.yml`）：推送与 `manifest.version` 完全一致的版本标签（例如 `0.1.0`）时，再次运行完整检查，然后把 `main.js`、`manifest.json`、`styles.css` 和安装包 zip 附加到 GitHub Release。
 
 ### 发布新版本
 
@@ -249,18 +249,20 @@ npm run check
 - `manifest.json` 的 `version`
 - `versions.json` 中对应版本号，以及 `manifest.minAppVersion`
 
-然后本地校验：
+然后本地校验（这里的 `0.1.0` 要换成实际的新版本号）：
 
 ```bash
-node scripts/verify-version.mjs v0.1.0
+node scripts/verify-version.mjs 0.1.0
 ```
 
 提交并推送后创建标签：
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag -a 0.1.0 -m "0.1.0"
+git push origin 0.1.0
 ```
+
+**注意：** Obsidian 按 `manifest.version` 精确查找 GitHub Release 的 tag，因此不要使用 `v0.1.0` 这类带前缀的标签；tag 必须写成 `0.1.0`。
 
 如果还没有配置远程仓库：
 
@@ -270,6 +272,30 @@ git push -u origin main
 ```
 
 标签推送后，Action 会校验 tag 与 `manifest.version` 是否一致，测试和构建通过后自动创建 GitHub Release。构建产物也会在 CI 的 Artifacts 中保留 14 天。
+
+## 发布到 Obsidian 社区插件目录
+
+Obsidian 现在的提交入口是 [community.obsidian.md](https://community.obsidian.md)，不再需要给 `obsidian-releases` 仓库提 PR。完整官方流程见 [Submit your plugin](https://docs.obsidian.md/plugins/releasing/submit-plugin)。
+
+### 提交前检查
+
+- GitHub 仓库必须公开，根目录包含 `README.md`、`LICENSE`、`manifest.json`。
+- `manifest.json` 的 `id` 必须唯一，且不能包含 `obsidian`；本项目使用 `social-formatter`。
+- `version` 必须是 `x.y.z` 格式，并与 `versions.json`、`package.json` 保持一致。
+- 如果使用了 Node.js / Electron API，`isDesktopOnly` 必须设为 `true`。本项目使用 Web Clipboard API，移除了 Electron fallback，因此保持 `false`。
+- GitHub Release 的 tag 必须与 `manifest.version` 完全一致，并附带 `main.js`、`manifest.json`、`styles.css`。
+
+### 提交步骤
+
+1. 把代码提交并推送到 GitHub 默认分支。
+2. 按上面的发布流程创建版本标签，让 Release 工作流生成 GitHub Release。
+3. 打开 [community.obsidian.md](https://community.obsidian.md)，用 Obsidian 账号登录。
+4. 在 Profile 中连接 GitHub 账号，用于验证仓库所有权。
+5. 进入 **Plugins → New plugin**，填写 GitHub 仓库 URL 和 Owner。
+6. 阅读并同意 Developer policies，提交审核。
+7. 自动审核发现的问题会显示在目录中；修复后提升版本号并发布新的 GitHub Release，目录会按新版本重新检查。
+
+审核通过后，用户就可以在 Obsidian 的社区插件市场中直接搜索并安装。后续更新只需发布新的 GitHub Release，不需要重复提交。
 
 ## 已知限制
 

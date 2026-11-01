@@ -259,8 +259,7 @@ export default class SocialFormatterPlugin extends Plugin {
     const exporter = new SocialExporter(this.app, file, theme, () =>
       this.readMarkdown(file),
     );
-    exporter.host.style.cssText =
-      "position:fixed;left:-100000px;top:0;width:720px;opacity:0;pointer-events:none;";
+    exporter.host.classList.add("sf-offscreen-render-host");
     document.body.appendChild(exporter.host);
     try {
       await exporter.render({

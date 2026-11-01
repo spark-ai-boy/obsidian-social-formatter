@@ -21,7 +21,6 @@ export class SocialFormatterSettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.classList.add("sf-settings");
 
-    containerEl.appendChild(el("h2", undefined, "社交平台排版"));
     containerEl.appendChild(
       el(
         "p",
@@ -36,8 +35,6 @@ export class SocialFormatterSettingTab extends PluginSettingTab {
   }
 
   private renderGeneral(containerEl: HTMLElement): void {
-    new Setting(containerEl).setName("通用").setHeading();
-
     const themes = getAllThemes(this.plugin.settings.customThemes);
     new Setting(containerEl)
       .setName("默认样式")
@@ -110,7 +107,7 @@ export class SocialFormatterSettingTab extends PluginSettingTab {
     const builtins = themes.filter((theme) => theme.builtin);
     const customs = this.plugin.settings.customThemes;
 
-    containerEl.appendChild(el("h3", "sf-settings-subheading", "内置样式"));
+    new Setting(containerEl).setName("内置样式").setHeading();
     for (const theme of builtins) {
       const setting = new Setting(containerEl)
         .setName(theme.name)
@@ -122,7 +119,7 @@ export class SocialFormatterSettingTab extends PluginSettingTab {
       );
     }
 
-    containerEl.appendChild(el("h3", "sf-settings-subheading", "自定义样式"));
+    new Setting(containerEl).setName("自定义样式").setHeading();
     if (!customs.length) {
       containerEl.appendChild(
         el("p", "sf-settings-note", "还没有自定义样式。可以从上面的内置样式复制，或新建一个。"),

@@ -61,7 +61,6 @@ export interface RenderOptions {
 }
 
 export interface RenderResult {
-  html: string;
   plainText: string;
   warnings: string[];
   imageCount: number;

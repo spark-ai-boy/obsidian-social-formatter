@@ -5,7 +5,8 @@ function fallbackWithExecCommand(html: string): boolean {
   container.setAttribute("contenteditable", "true");
   container.style.cssText =
     "position:fixed;left:-99999px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;";
-  container.innerHTML = html;
+  const parsed = new DOMParser().parseFromString(html, "text/html");
+  container.replaceChildren(...Array.from(parsed.body.childNodes));
   document.body.appendChild(container);
 
   const selection = window.getSelection();
@@ -28,19 +29,6 @@ function fallbackWithExecCommand(html: string): boolean {
   return copied;
 }
 
-function fallbackWithElectron(html: string, text: string): boolean {
-  try {
-    const electron = require("electron") as {
-      clipboard?: { write(options: { text: string; html: string }): void };
-    };
-    if (!electron?.clipboard) return false;
-    electron.clipboard.write({ text, html });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export async function copyRichHtml(html: string, text: string): Promise<CopyResult> {
   if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
     try {
@@ -60,10 +48,6 @@ export async function copyRichHtml(html: string, text: string): Promise<CopyResu
     return { mode: "rich", htmlLength: html.length };
   }
 
-  if (fallbackWithElectron(html, text)) {
-    return { mode: "rich", htmlLength: html.length };
-  }
-
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
     return { mode: "plain", htmlLength: html.length };
@@ -77,6 +61,5 @@ export async function copyPlainText(text: string): Promise<void> {
     await navigator.clipboard.writeText(text);
     return;
   }
-  if (fallbackWithElectron(text, text)) return;
   throw new Error("无法访问系统剪贴板");
 }
